@@ -51,7 +51,7 @@ def create_cards(message):
     target_word = 'Peace'
     translate = 'Мир'
     target_word_btn = types.KeyboardButton(target_word)
-    buttons.append(target_word_btn)
+    buttons = [target_word_btn]
     others = ['Green', 'White', 'Hello', 'Car']
     other_words_btns = [types.KeyboardButton(word) for word in others]
     buttons.extend(other_words_btns)
