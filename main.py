@@ -19,7 +19,7 @@ buttons = []
 
 class Command:
     ADD_WORD = 'Добавить слово ➕'
-    DELETE_WORD = 'Удалить слово🔙'
+    DELETE_WORD = 'Удалить слово 🔙'
     NEXT = 'Дальше ⏭'
 
 
@@ -40,17 +40,19 @@ def get_user_step(uid):
 
 
 @bot.message_handler(commands=['cards', 'start'])
-def create_cards(message):
+def start_bot(message):
     cid = message.chat.id
+    user_id = message.from_user.first_name
+    print('Начинает сессию: ', user_id)
     if cid not in known_users:
         known_users.append(cid)
         userStep[cid] = 0
         bot.send_message(cid, "Hello, stranger, let study English...")
     markup = types.ReplyKeyboardMarkup(row_width=2)
-
     target_word = 'Peace'
     translate = 'Мир'
     target_word_btn = types.KeyboardButton(target_word)
+
     buttons = [target_word_btn]
     others = ['Green', 'White', 'Hello', 'Car']
     other_words_btns = [types.KeyboardButton(word) for word in others]
@@ -60,11 +62,11 @@ def create_cards(message):
     add_word_btn = types.KeyboardButton(Command.ADD_WORD)
     delete_word_btn = types.KeyboardButton(Command.DELETE_WORD)
     buttons.extend([next_btn, add_word_btn, delete_word_btn])
-
     markup.add(*buttons)
 
     greeting = f"Выбери перевод слова:\n🇷🇺 {translate}"
     bot.send_message(message.chat.id, greeting, reply_markup=markup)
+
     bot.set_state(message.from_user.id, MyStates.target_word, message.chat.id)
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data['target_word'] = target_word
@@ -98,6 +100,7 @@ def save_new_word(message):
 def message_reply(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        print(data)
         target_word = data['target_word']
     markup.add(*buttons)
     bot.send_message(message.chat.id, target_word, reply_markup=markup)
