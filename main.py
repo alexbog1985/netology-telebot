@@ -1,4 +1,6 @@
 import random
+
+from db import add_user, get_all_users
 from settings import TG_TOKEN
 
 from telebot import types, TeleBot, custom_filters
@@ -12,7 +14,7 @@ state_storage = StateMemoryStorage()
 token_bot = TG_TOKEN
 bot = TeleBot(token_bot, state_storage=state_storage)
 
-known_users = []
+known_users = get_all_users()
 userStep = {}
 buttons = []
 
@@ -42,10 +44,13 @@ def get_user_step(uid):
 @bot.message_handler(commands=['cards', 'start'])
 def start_bot(message):
     cid = message.chat.id
-    user_id = message.from_user.first_name
-    print('Начинает сессию: ', user_id)
+    f_name = message.from_user.first_name
+    l_name = message.from_user.last_name
+    username = message.from_user.username
+    print('Начинает сессию: ', f_name)
+
     if cid not in known_users:
-        known_users.append(cid)
+        add_user(cid, f_name, l_name, username)
         userStep[cid] = 0
         bot.send_message(cid, "Hello, stranger, let study English...")
     markup = types.ReplyKeyboardMarkup(row_width=2)
