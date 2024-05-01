@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 
-from data.models import create_tables, User, EngWord, RusWord
+from data.models import create_tables, User, EngWord, RusWord, UserToEngWord
 
 engine = create_engine('sqlite:///data//sqlite3.db')
 engine.connect()
@@ -25,6 +25,10 @@ def add_user(cid, user_chat_id, f_name, l_name, username, step):
         username=username,
         step=step
     )
+    eng_words = session.query(EngWord).limit(10).all()
+    for eng_word in eng_words:
+        user.eng_words.append(UserToEngWord(user_id=user.id, eng_word_id=eng_word.id))
+
     session.add(user)
     session.commit()
 
@@ -33,6 +37,11 @@ def get_all_users():
     users = session.query(User).all()
     user_ids = [user.user_tg_id for user in users]
     return user_ids
+
+
+def get_user(cid):
+    user = session.query(User).filter(User.user_tg_id == cid).first()
+    return user.user_tg_id if user else None
 
 
 def get_user_words(cid):

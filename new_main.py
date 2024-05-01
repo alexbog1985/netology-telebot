@@ -3,13 +3,11 @@ import random
 from telebot import types
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_all_users, add_user, get_words, get_random_eng_word
+from db import get_user, add_user, get_words, get_random_eng_word
 
 from settings import TG_TOKEN  # токен бота
 
 bot = telebot.TeleBot(TG_TOKEN)  # создание бота
-
-known_users = get_all_users()  # получение всех пользователей
 
 
 class Command:
@@ -26,14 +24,14 @@ class MyStates(StatesGroup):
 
 @bot.message_handler(commands=['cards', 'start'])
 def start(message):
+
     cid = message.chat.id
     f_name = message.from_user.first_name
     l_name = message.from_user.last_name
     user_id = message.from_user.id
     username = message.from_user.username
-    print(known_users)
 
-    if cid not in known_users:
+    if get_user(cid) is None:
         add_user(cid, user_id, f_name, l_name, username, step=0)
         bot.send_message(cid, f'Привет, {f_name} {l_name}! Я помогу тебе выучить английский язык.')
 

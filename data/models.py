@@ -23,7 +23,7 @@ class User(Base):
     username = Column(String(length=50))
     step = Column(Integer, default=0)
 
-    rus_words = relationship('UserToEngWord', backref='user')
+    eng_words = relationship('UserToEngWord', backref='users')
 
 
 class EngWord(Base):
@@ -33,8 +33,8 @@ class EngWord(Base):
     eng_word = Column(String)
     rus_word_id = Column(Integer, ForeignKey('rus_word.id'))
 
-    rus_word = relationship('RusWord', backref='eng_words')
-    user = relationship('UserToEngWord', backref='eng_words')
+    rus_word = relationship('RusWord', backref='rus_words')
+    users = relationship('UserToEngWord', backref='eng_words')
 
 
 class RusWord(Base):
