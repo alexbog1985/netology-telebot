@@ -1,3 +1,4 @@
+import random
 from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 
@@ -36,18 +37,25 @@ def add_user(cid, user_chat_id, f_name, l_name, username, step):
 def get_all_users():
     users = session.query(User).all()
     user_ids = [user.user_tg_id for user in users]
+    session.close()
     return user_ids
 
 
 def get_user(cid):
     user = session.query(User).filter(User.user_tg_id == cid).first()
+    session.close()
     return user.user_tg_id if user else None
 
 
 def get_user_words(cid):
-    user = session.query(User).filter(cid)
-    word = user.eng_words.first()
-    print(word)
+    user = session.query(User).filter(User.user_tg_id == cid).first()
+    words = [word.eng_words.eng_word for word in user.eng_words]
+    russian_words = [word.eng_words.rus_word.rus_word for word in user.eng_words]
+    eng_rus_words = list(zip(russian_words, words))
+
+    two_word = random.choice(eng_rus_words)
+    session.close()
+    return {'rus_word': two_word[0], 'eng_word': two_word[1]}
 
 
 def get_words():
@@ -61,6 +69,7 @@ def get_words():
        first())
 
     print(q[0].rus_word, q[1].eng_word)
+    session.close()
     return {'rus_word': q[0].rus_word, 'eng_word': q[1].eng_word}
 
 
@@ -71,6 +80,7 @@ def get_random_eng_word():
        group_by(func.random()).
        first())
     print(q.eng_word)
+    session.close()
     return q.eng_word
 
 
@@ -103,10 +113,11 @@ def add_eng_words():
     session.add_all([w1, w2, w3, w4, w5, w6, w7, w8, w9, w10])
     session.commit()
 
+
 if __name__ == '__main__':
     print(engine)
     get_all_users()
-    get_random_eng_word()
+    get_user_words(226351277)
     # add_rus_words()
     # add_eng_words()
 

@@ -3,17 +3,18 @@ import random
 from telebot import types
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_user, add_user, get_words, get_random_eng_word
+from db import get_user, add_user, get_words, get_random_eng_word, get_user_words
 
 from settings import TG_TOKEN  # токен бота
 
-bot = telebot.TeleBot(TG_TOKEN)  # создание бота
+bot = telebot.TeleBot(TG_TOKEN, state_storage=telebot.storage.StateMemoryStorage())  # создание бота
 
 
 class Command:
     ADD_WORD = 'Добавить слово ➕'
     DELETE_WORD = 'Удалить слово 🔙'
     NEXT = 'Дальше ⏭'
+    LEARN = 'Ну что, начнём ⬇️'
 
 
 class MyStates(StatesGroup):
@@ -37,7 +38,16 @@ def start(message):
 
     markup = types.ReplyKeyboardMarkup(row_width=2)
 
-    words = get_words()
+    go_btn = types.KeyboardButton(Command.LEARN)
+    markup.add(go_btn)
+    bot.send_message(cid, 'Поехали?', reply_markup=markup)
+
+
+@bot.message_handler(func=lambda message: message.text == Command.LEARN, content_types=['text'])
+def learn(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2)
+
+    words = get_user_words(message.from_user.id)
     rus_word = words['rus_word']  # Русское слово
     target_eng_word = words['eng_word']  # Правильное английское слово
     target_eng_word_button = types.KeyboardButton(target_eng_word)  # создание кнопки
@@ -73,15 +83,16 @@ def message_reply(message):
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         target_eng_word = data['target_eng_word']
     if message.text == target_eng_word:
-        bot.send_message(message.chat.id, 'Правильно!')
+        bot.send_message(message.chat.id, f'Правильно!')
+        learn(message)
     elif message.text == Command.NEXT:
-        pass
+        learn(message)
     elif message.text == Command.ADD_WORD:
         pass
     elif message.text == Command.DELETE_WORD:
         pass
     else:
-        bot.send_message(message.chat.id, 'Ошибка!')
+        bot.send_message(message.chat.id, 'Ошибка! Попробуйте еще раз.')
 
 
 if __name__ == '__main__':
