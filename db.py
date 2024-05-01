@@ -41,7 +41,7 @@ def get_user_words(cid):
     print(word)
 
 
-def get_rus_words():
+def get_words():
     q = (session.query(
         RusWord,
         EngWord
@@ -52,8 +52,18 @@ def get_rus_words():
        first())
 
     print(q[0].rus_word, q[1].eng_word)
-    # for w, e in q:
-    #     print(w.rus_word, e.eng_word)
+    return {'rus_word': q[0].rus_word, 'eng_word': q[1].eng_word}
+
+
+def get_random_eng_word():
+    q = (session.query(
+        EngWord
+    ).select_from(EngWord).
+       group_by(func.random()).
+       first())
+    print(q.eng_word)
+    return q.eng_word
+
 
 def add_rus_words():
     w1 = RusWord(rus_word='через')
@@ -87,7 +97,7 @@ def add_eng_words():
 if __name__ == '__main__':
     print(engine)
     get_all_users()
-    get_rus_words()
+    get_random_eng_word()
     # add_rus_words()
     # add_eng_words()
 

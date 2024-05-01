@@ -3,7 +3,7 @@ import random
 from telebot import types
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_all_users, add_user
+from db import get_all_users, add_user, get_words, get_random_eng_word
 
 from settings import TG_TOKEN  # токен бота
 
@@ -39,10 +39,16 @@ def start(message):
 
     markup = types.ReplyKeyboardMarkup(row_width=2)
 
-    rus_word = 'Мир'  # Русское слово
-    target_eng_word = 'Peace'  # Правильное английское слово
+    words = get_words()
+    rus_word = words['rus_word']  # Русское слово
+    target_eng_word = words['eng_word']  # Правильное английское слово
     target_eng_word_button = types.KeyboardButton(target_eng_word)  # создание кнопки
-    other_eng_words = ['Green', 'Car', 'Hello']  # другие, неправильные английские слова
+    other_eng_words = []  # другие, неправильные английские слова
+    while len(other_eng_words) < 3:
+        random_eng_word = get_random_eng_word()
+        if random_eng_word not in other_eng_words and random_eng_word != target_eng_word:
+            other_eng_words.append(random_eng_word)
+
     other_eng_word_buttons = [types.KeyboardButton(word) for word in other_eng_words]  # создание кнопок
 
     buttons = [target_eng_word_button] + other_eng_word_buttons  # список кнопок с ответами
