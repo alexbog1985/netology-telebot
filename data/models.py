@@ -17,9 +17,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     user_tg_id = Column(Integer, nullable=False, unique=True)
+    user_chat_id = Column(Integer, nullable=False, unique=True)
     first_name = Column(String(length=50))
     last_name = Column(String(length=50))
     username = Column(String(length=50))
+    step = Column(Integer, default=0)
+
     rus_words = relationship('UserToEngWord', backref='user')
 
 
