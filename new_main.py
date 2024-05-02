@@ -21,6 +21,10 @@ class MyStates(StatesGroup):
     rus_word = State()
     target_eng_word = State()
     other_eng_words = State()
+    delete_word = State()
+
+
+user_step = {}
 
 
 @bot.message_handler(commands=['cards', 'start'])
@@ -78,6 +82,25 @@ def learn(message):
         data['other_eng_words'] = other_eng_words
 
 
+@bot.message_handler(func=lambda message: message.text == Command.DELETE_WORD, content_types=['text'])
+def delete_word(message):
+
+    bot.set_state(message.from_user.id, MyStates.delete_word, message.chat.id)
+    get_state = bot.get_state(message.from_user.id, message.chat.id)
+    print(get_state)
+    markup = types.ReplyKeyboardMarkup(row_width=2)
+    yes_btn = types.KeyboardButton('Да')
+    no_btn = types.KeyboardButton('Нет')
+    markup.add(yes_btn, no_btn)
+
+    bot.send_message(message.chat.id, f'Вы точно хотите удалить ""?:', reply_markup=markup)
+    # if message.text == 'Да':
+    #     bot.send_message(message.chat.id, 'Окей, удалил.')
+    # elif message.text == 'Нет':
+    #     bot.send_message(message.chat.id, 'Окей, не удалял.')
+    #     learn(message)
+
+
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def message_reply(message):
     try:
@@ -90,13 +113,12 @@ def message_reply(message):
             learn(message)
         elif message.text == Command.ADD_WORD:
             pass
-        elif message.text == Command.DELETE_WORD:
-            pass
         else:
             bot.send_message(message.chat.id, 'Ошибка! Попробуйте еще раз.')
     except Exception as e:
         print(e)
         bot.send_message(message.chat.id, "Что-то пошло не так, давай начнем сначала, введи команду /start")
+
 
 if __name__ == '__main__':
     print('Bot started')
