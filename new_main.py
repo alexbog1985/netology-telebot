@@ -80,20 +80,23 @@ def learn(message):
 
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def message_reply(message):
-    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-        target_eng_word = data['target_eng_word']
-    if message.text == target_eng_word:
-        bot.send_message(message.chat.id, f'Правильно!')
-        learn(message)
-    elif message.text == Command.NEXT:
-        learn(message)
-    elif message.text == Command.ADD_WORD:
-        pass
-    elif message.text == Command.DELETE_WORD:
-        pass
-    else:
-        bot.send_message(message.chat.id, 'Ошибка! Попробуйте еще раз.')
-
+    try:
+        with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            target_eng_word = data['target_eng_word']
+        if message.text == target_eng_word:
+            bot.send_message(message.chat.id, f'Правильно!')
+            learn(message)
+        elif message.text == Command.NEXT:
+            learn(message)
+        elif message.text == Command.ADD_WORD:
+            pass
+        elif message.text == Command.DELETE_WORD:
+            pass
+        else:
+            bot.send_message(message.chat.id, 'Ошибка! Попробуйте еще раз.')
+    except Exception as e:
+        print(e)
+        bot.send_message(message.chat.id, "Что-то пошло не так, давай начнем сначала, введи команду /start")
 
 if __name__ == '__main__':
     print('Bot started')
