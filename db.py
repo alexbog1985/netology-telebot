@@ -102,6 +102,14 @@ def add_user_word(cid, eng_word):
     session.commit()
 
 
+def add_word(rus_word, eng_word):
+    r_word = RusWord(rus_word=rus_word)
+    e_word = EngWord(eng_word=eng_word, rus_word_id=r_word.id)
+    session.add(r_word)
+    session.add(e_word)
+    session.commit()
+
+
 def add_rus_words():
     w1 = RusWord(rus_word='через')
     w2 = RusWord(rus_word='слишком')
@@ -134,6 +142,7 @@ def add_eng_words():
 
 if __name__ == '__main__':
     print(engine)
+    # add_word('бежать', 'run')
     print(get_all_words())
     # print(dir(delete_user_word(226351277)))
     # print(delete_user_word(226351277))
