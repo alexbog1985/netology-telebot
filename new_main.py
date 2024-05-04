@@ -86,6 +86,8 @@ def learn(message):
 def delete_word(message):
 
     bot.set_state(message.from_user.id, MyStates.delete_word, message.chat.id)
+    get_state = bot.get_state(message.from_user.id, message.chat.id)
+    print(get_state)
     markup = types.ReplyKeyboardMarkup(row_width=2)
     yes_btn = types.KeyboardButton('Да')
     no_btn = types.KeyboardButton('Нет')
@@ -130,5 +132,4 @@ bot.add_custom_filter(custom_filters.StateFilter(bot))
 
 if __name__ == '__main__':
     print('Bot started')
-
     bot.polling(none_stop=True)
