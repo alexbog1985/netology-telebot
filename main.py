@@ -105,7 +105,6 @@ def save_new_word(message):
 def message_reply(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-        print(data)
         target_word = data['target_word']
     markup.add(*buttons)
     bot.send_message(message.chat.id, target_word, reply_markup=markup)

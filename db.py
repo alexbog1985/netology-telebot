@@ -58,30 +58,26 @@ def get_user_words(cid):
     return {'rus_word': two_word[0], 'eng_word': two_word[1]}
 
 
-def get_words():
-    q = (session.query(
-        RusWord,
-        EngWord
-    ).select_from(RusWord).
-       join(EngWord).
-       group_by(func.random()).
-       group_by(EngWord.eng_word).
-       first())
-
-    print(q[0].rus_word, q[1].eng_word)
-    session.close()
-    return {'rus_word': q[0].rus_word, 'eng_word': q[1].eng_word}
-
-
 def get_random_eng_word():
     q = (session.query(
         EngWord
     ).select_from(EngWord).
        group_by(func.random()).
        first())
-    print(q.eng_word)
     session.close()
     return q.eng_word
+
+
+def delete_user_word(cid, eng_word):
+    user_id = session.query(User).filter(User.user_tg_id == cid).first().id
+    word_id = session.query(EngWord).filter(EngWord.eng_word == eng_word).first().id
+    session.query(UserToEngWord).\
+    filter(UserToEngWord.eng_word_id == word_id).\
+    filter(UserToEngWord.user_id == user_id).\
+    delete()
+    session.commit()
+
+    return user_id, word_id
 
 
 def add_rus_words():
@@ -116,8 +112,9 @@ def add_eng_words():
 
 if __name__ == '__main__':
     print(engine)
-    get_all_users()
-    get_user_words(226351277)
+    # print(dir(delete_user_word(226351277)))
+    # print(delete_user_word(226351277))
+    # get_user_words(226351277)
     # add_rus_words()
     # add_eng_words()
 
