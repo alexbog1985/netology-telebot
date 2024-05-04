@@ -1,9 +1,9 @@
 import telebot
 import random
-from telebot import types
+from telebot import types, custom_filters
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_user, add_user, get_words, get_random_eng_word, get_user_words
+from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word
 
 from settings import TG_TOKEN  # токен бота
 
@@ -82,44 +82,54 @@ def learn(message):
         data['other_eng_words'] = other_eng_words
 
 
-@bot.message_handler(func=lambda message: message.text == Command.DELETE_WORD, content_types=['text'])
+@bot.message_handler(state=MyStates.delete_word, content_types=['text'])
 def delete_word(message):
 
     bot.set_state(message.from_user.id, MyStates.delete_word, message.chat.id)
     get_state = bot.get_state(message.from_user.id, message.chat.id)
-    print(get_state)
     markup = types.ReplyKeyboardMarkup(row_width=2)
     yes_btn = types.KeyboardButton('Да')
     no_btn = types.KeyboardButton('Нет')
     markup.add(yes_btn, no_btn)
 
-    bot.send_message(message.chat.id, f'Вы точно хотите удалить ""?:', reply_markup=markup)
-    # if message.text == 'Да':
-    #     bot.send_message(message.chat.id, 'Окей, удалил.')
-    # elif message.text == 'Нет':
-    #     bot.send_message(message.chat.id, 'Окей, не удалял.')
-    #     learn(message)
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        eng_word = data['target_eng_word']
+        rus_word = data['rus_word']
+    bot.send_message(message.chat.id, f'Вы точно хотите удалить "{rus_word}"?:', reply_markup=markup)
+    if message.text == 'Да':
+        bot.send_message(message.chat.id, 'Окей, удалил.')
+        delete_user_word(message.from_user.id, eng_word)
+        learn(message)
+    elif message.text == 'Нет':
+        bot.send_message(message.chat.id, 'Окей, не удалял.')
+        learn(message)
 
 
-@bot.message_handler(func=lambda message: True, content_types=['text'])
+@bot.message_handler(state=MyStates.rus_word, content_types=['text'])
 def message_reply(message):
-    try:
-        with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            target_eng_word = data['target_eng_word']
-        if message.text == target_eng_word:
-            bot.send_message(message.chat.id, f'Правильно!')
-            learn(message)
-        elif message.text == Command.NEXT:
-            learn(message)
-        elif message.text == Command.ADD_WORD:
-            pass
-        else:
-            bot.send_message(message.chat.id, 'Ошибка! Попробуйте еще раз.')
-    except Exception as e:
-        print(e)
-        bot.send_message(message.chat.id, "Что-то пошло не так, давай начнем сначала, введи команду /start")
+    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+        target_eng_word = data['target_eng_word']
+    if message.text == target_eng_word:
+        bot.send_message(message.chat.id, f'Правильно!')
+        learn(message)
+    elif message.text == Command.NEXT:
+        learn(message)
+    elif message.text == Command.ADD_WORD:
+        pass
+    elif message.text == Command.DELETE_WORD:
+        delete_word(message)
+    else:
+        bot.send_message(message.chat.id, 'Ошибка! Попробуйте еще раз.')
 
+
+@bot.message_handler(state=None)
+def none_state(message):
+    start(message)
+
+
+bot.add_custom_filter(custom_filters.StateFilter(bot))
 
 if __name__ == '__main__':
     print('Bot started')
+
     bot.polling(none_stop=True)
