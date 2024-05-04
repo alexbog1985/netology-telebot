@@ -48,13 +48,18 @@ def get_user(cid):
 
 
 def get_user_words(cid):
-    user = session.query(User).filter(User.user_tg_id == cid).first()
-    words = [word.eng_words.eng_word for word in user.eng_words]
-    russian_words = [word.eng_words.rus_word.rus_word for word in user.eng_words]
-    eng_rus_words = list(zip(russian_words, words))
+    try:
+        user = session.query(User).filter(User.user_tg_id == cid).first()
+        words = [word.eng_words.eng_word for word in user.eng_words]
+        russian_words = [word.eng_words.rus_word.rus_word for word in user.eng_words]
+        eng_rus_words = list(zip(russian_words, words))
 
-    two_word = random.choice(eng_rus_words)
-    session.close()
+        two_word = random.choice(eng_rus_words)
+        session.close()
+    except Exception as e:
+        print(e)
+        session.close()
+        return None
     return {'rus_word': two_word[0], 'eng_word': two_word[1]}
 
 
@@ -72,9 +77,9 @@ def delete_user_word(cid, eng_word):
     user_id = session.query(User).filter(User.user_tg_id == cid).first().id
     word_id = session.query(EngWord).filter(EngWord.eng_word == eng_word).first().id
     session.query(UserToEngWord).\
-    filter(UserToEngWord.eng_word_id == word_id).\
-    filter(UserToEngWord.user_id == user_id).\
-    delete()
+        filter(UserToEngWord.eng_word_id == word_id).\
+        filter(UserToEngWord.user_id == user_id).\
+        delete()
     session.commit()
 
     return user_id, word_id

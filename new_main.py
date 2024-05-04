@@ -52,34 +52,41 @@ def learn(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
 
     words = get_user_words(message.from_user.id)
-    rus_word = words['rus_word']  # Русское слово
-    target_eng_word = words['eng_word']  # Правильное английское слово
-    target_eng_word_button = types.KeyboardButton(target_eng_word)  # создание кнопки
-    other_eng_words = []  # другие, неправильные английские слова
-    while len(other_eng_words) < 3:
-        random_eng_word = get_random_eng_word()
-        if random_eng_word not in other_eng_words and random_eng_word != target_eng_word:
-            other_eng_words.append(random_eng_word)
+    if words:
+        rus_word = words['rus_word']  # Русское слово
+        target_eng_word = words['eng_word']  # Правильное английское слово
+        target_eng_word_button = types.KeyboardButton(target_eng_word)  # создание кнопки
+        other_eng_words = []  # другие, неправильные английские слова
+        while len(other_eng_words) < 3:
+            random_eng_word = get_random_eng_word()
+            if random_eng_word not in other_eng_words and random_eng_word != target_eng_word:
+                other_eng_words.append(random_eng_word)
 
-    other_eng_word_buttons = [types.KeyboardButton(word) for word in other_eng_words]  # создание кнопок
+        other_eng_word_buttons = [types.KeyboardButton(word) for word in other_eng_words]  # создание кнопок
 
-    buttons = [target_eng_word_button] + other_eng_word_buttons  # список кнопок с ответами
-    random.shuffle(buttons)  # перемешивание кнопок
+        buttons = [target_eng_word_button] + other_eng_word_buttons  # список кнопок с ответами
+        random.shuffle(buttons)  # перемешивание кнопок
 
-    next_btn = types.KeyboardButton(Command.NEXT)
-    add_word_btn = types.KeyboardButton(Command.ADD_WORD)
-    delete_word_btn = types.KeyboardButton(Command.DELETE_WORD)
-    buttons.extend([next_btn, add_word_btn, delete_word_btn])
+        next_btn = types.KeyboardButton(Command.NEXT)
+        add_word_btn = types.KeyboardButton(Command.ADD_WORD)
+        delete_word_btn = types.KeyboardButton(Command.DELETE_WORD)
+        buttons.extend([next_btn, add_word_btn, delete_word_btn])
 
-    markup.add(*buttons)
+        markup.add(*buttons)
 
-    bot.send_message(message.chat.id, f'Выберите перевод слова "{rus_word}":', reply_markup=markup)
+        bot.send_message(message.chat.id, f'Выберите перевод слова "{rus_word}":', reply_markup=markup)
 
-    bot.set_state(message.from_user.id, MyStates.rus_word, message.chat.id)
-    with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-        data['rus_word'] = rus_word
-        data['target_eng_word'] = target_eng_word
-        data['other_eng_words'] = other_eng_words
+        bot.set_state(message.from_user.id, MyStates.rus_word, message.chat.id)
+        with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['rus_word'] = rus_word
+            data['target_eng_word'] = target_eng_word
+            data['other_eng_words'] = other_eng_words
+    else:
+        add_word_btn = types.KeyboardButton(Command.ADD_WORD)
+        markup.add(add_word_btn)
+
+        bot.send_message(message.chat.id, 'У вас нет слов для изучения. Нажмите на кнопку "Добавить слово"',
+                         reply_markup=markup)
 
 
 @bot.message_handler(state=MyStates.delete_word, content_types=['text'])
