@@ -3,7 +3,7 @@ import random
 from telebot import types, custom_filters
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word
+from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, add_user_word
 
 from settings import TG_TOKEN  # токен бота
 
@@ -22,6 +22,7 @@ class MyStates(StatesGroup):
     target_eng_word = State()
     other_eng_words = State()
     delete_word = State()
+    add_word = State()
 
 
 user_step = {}
@@ -82,11 +83,10 @@ def learn(message):
             data['target_eng_word'] = target_eng_word
             data['other_eng_words'] = other_eng_words
     else:
-        add_word_btn = types.KeyboardButton(Command.ADD_WORD)
-        markup.add(add_word_btn)
-
-        bot.send_message(message.chat.id, 'У вас нет слов для изучения. Нажмите на кнопку "Добавить слово"',
-                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'У вас нет слов для изучения. '
+                                          'Добавьте новое слово. '
+                                          'Введите слово на русском языке.')
+        add_word(message)
 
 
 @bot.message_handler(state=MyStates.delete_word, content_types=['text'])
@@ -111,6 +111,17 @@ def delete_word(message):
         learn(message)
 
 
+@bot.message_handler(state=MyStates.add_word)
+def add_word(message):
+    cid = message.from_user.id
+    dict_words = get_all_words()
+    bot.set_state(message.from_user.id, MyStates.add_word, message.chat.id)
+    bot.send_message(message.chat.id, 'Введите слово для добавления:')
+    if message.text.lower() in dict_words:
+        add_user_word(cid, dict_words[message.text.lower()])
+        learn(message)
+
+
 @bot.message_handler(state=MyStates.rus_word, content_types=['text'])
 def message_reply(message):
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
@@ -121,7 +132,7 @@ def message_reply(message):
     elif message.text == Command.NEXT:
         learn(message)
     elif message.text == Command.ADD_WORD:
-        pass
+        add_word(message)
     elif message.text == Command.DELETE_WORD:
         delete_word(message)
     else:

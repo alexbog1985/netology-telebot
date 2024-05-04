@@ -41,6 +41,16 @@ def get_all_users():
     return user_ids
 
 
+def get_all_words():
+    e_words = session.query(EngWord).all()
+    r_words = session.query(RusWord).all()
+    eng_words_list = [word.eng_word for word in e_words]
+    rus_words_list = [word.rus_word for word in r_words]
+    words = dict(zip(rus_words_list, eng_words_list))
+    session.close()
+    return words
+
+
 def get_user(cid):
     user = session.query(User).filter(User.user_tg_id == cid).first()
     session.close()
@@ -85,6 +95,13 @@ def delete_user_word(cid, eng_word):
     return user_id, word_id
 
 
+def add_user_word(cid, eng_word):
+    user = session.query(User).filter(User.user_tg_id == cid).first()
+    word_id = session.query(EngWord).filter(EngWord.eng_word == eng_word).first().id
+    user.eng_words.append(UserToEngWord(user_id=user.id, eng_word_id=word_id))
+    session.commit()
+
+
 def add_rus_words():
     w1 = RusWord(rus_word='через')
     w2 = RusWord(rus_word='слишком')
@@ -94,7 +111,7 @@ def add_rus_words():
     w6 = RusWord(rus_word='слышать')
     w7 = RusWord(rus_word='поворачивать')
     w8 = RusWord(rus_word='чувствовать')
-    w9 = RusWord(rus_word='слишком')
+    w9 = RusWord(rus_word='голова')
     w10 = RusWord(rus_word='люди')
     session.add_all([w1, w2, w3, w4, w5, w6, w7, w8, w9, w10])
     session.commit()
@@ -117,6 +134,7 @@ def add_eng_words():
 
 if __name__ == '__main__':
     print(engine)
+    print(get_all_words())
     # print(dir(delete_user_word(226351277)))
     # print(delete_user_word(226351277))
     # get_user_words(226351277)
