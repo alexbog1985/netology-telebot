@@ -42,12 +42,18 @@ def get_all_users():
 
 
 def get_all_words():
-    e_words = session.query(EngWord).all()
-    r_words = session.query(RusWord).all()
-    eng_words_list = [word.eng_word for word in e_words]
-    rus_words_list = [word.rus_word for word in r_words]
-    words = dict(zip(rus_words_list, eng_words_list))
-    session.close()
+    try:
+        e_words = session.query(EngWord).all()
+        r_words = session.query(RusWord).all()
+        eng_words_list = [word.eng_word for word in e_words]
+        rus_words_list = [word.rus_word for word in r_words]
+        words = dict(zip(rus_words_list, eng_words_list))
+        session.close()
+    except Exception as e:
+        print(f'Не получилось получить слова из базы данных. Ошибка: {e}')
+        add_eng_words()
+        add_rus_words()
+        get_all_words()
     return words
 
 
@@ -102,10 +108,12 @@ def add_user_word(cid, eng_word):
     session.commit()
 
 
-def add_word(rus_word, eng_word):
-    r_word = RusWord(rus_word=rus_word)
-    e_word = EngWord(eng_word=eng_word, rus_word_id=r_word.id)
-    session.add(r_word)
+def add_new_word(r_word, eng_word):
+    rus_word = RusWord(rus_word=r_word)
+    session.add(rus_word)
+    session.commit()
+    rus_word_id = session.query(RusWord).filter(RusWord.rus_word == r_word).first().id
+    e_word = EngWord(eng_word=eng_word, rus_word_id=rus_word_id)
     session.add(e_word)
     session.commit()
 
@@ -142,11 +150,13 @@ def add_eng_words():
 
 if __name__ == '__main__':
     print(engine)
-    # add_word('бежать', 'run')
-    print(get_all_words())
+    # create_tables(engine)
+    # add_new_word('бежать', 'run')
+    # add_user_word(226351277, 'run')
+    # print(get_all_words())
     # print(dir(delete_user_word(226351277)))
     # print(delete_user_word(226351277))
-    # get_user_words(226351277)
+    print(get_user_words(226351277))
     # add_rus_words()
     # add_eng_words()
 

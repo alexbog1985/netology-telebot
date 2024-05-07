@@ -3,9 +3,11 @@ import random
 from telebot import types, custom_filters
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, add_user_word
+from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, add_user_word, \
+    add_new_word
 
 from settings import TG_TOKEN  # токен бота
+from translate_api import translate
 
 bot = telebot.TeleBot(TG_TOKEN, state_storage=telebot.storage.StateMemoryStorage())  # создание бота
 
@@ -86,7 +88,7 @@ def learn(message):
         bot.send_message(message.chat.id, 'У вас нет слов для изучения. '
                                           'Добавьте новое слово. '
                                           'Введите слово на русском языке.')
-        add_word(message)
+        bot.register_next_step_handler(message, add_word)
 
 
 @bot.message_handler(state=MyStates.delete_word, content_types=['text'])
@@ -116,9 +118,14 @@ def add_word(message):
     cid = message.from_user.id
     dict_words = get_all_words()
     bot.set_state(message.from_user.id, MyStates.add_word, message.chat.id)
-    bot.send_message(message.chat.id, 'Введите слово для добавления:')
     if message.text.lower() in dict_words:
         add_user_word(cid, dict_words[message.text.lower()])
+        learn(message)
+    else:
+        rus_word = message.text.lower()
+        eng_word = translate(rus_word)
+        add_new_word(rus_word, eng_word)
+        add_user_word(cid, eng_word)
         learn(message)
 
 
@@ -132,7 +139,8 @@ def message_reply(message):
     elif message.text == Command.NEXT:
         learn(message)
     elif message.text == Command.ADD_WORD:
-        add_word(message)
+        bot.send_message(message.chat.id, 'Введите слово для добавления:')
+        bot.register_next_step_handler(message, add_word)
     elif message.text == Command.DELETE_WORD:
         delete_word(message)
     else:
