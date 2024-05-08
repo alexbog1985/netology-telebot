@@ -105,7 +105,7 @@ def delete_word(message):
         rus_word = data['rus_word']
     bot.send_message(message.chat.id, f'Вы точно хотите удалить "{rus_word}"?:', reply_markup=markup)
     if message.text == 'Да':
-        bot.send_message(message.chat.id, 'Окей, удалил.')
+        bot.send_message(message.chat.id, f'Удалил слово "{rus_word}" перевод: "{eng_word}"')
         delete_user_word(message.from_user.id, eng_word)
         learn(message)
     elif message.text == 'Нет':
@@ -157,3 +157,4 @@ bot.add_custom_filter(custom_filters.StateFilter(bot))
 if __name__ == '__main__':
     print('Bot started')
     bot.polling(none_stop=True)
+
