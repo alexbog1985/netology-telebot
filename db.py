@@ -49,12 +49,10 @@ def get_all_words():
         rus_words_list = [word.rus_word for word in r_words]
         words = dict(zip(rus_words_list, eng_words_list))
         session.close()
+        return words
     except Exception as e:
         print(f'Не получилось получить слова из базы данных. Ошибка: {e}')
-        add_eng_words()
-        add_rus_words()
-        get_all_words()
-    return words
+        return None
 
 
 def get_user(cid):
