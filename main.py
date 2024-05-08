@@ -8,4 +8,4 @@ if not db.get_all_words():
 
 
 print("Starting bot...")
-bot.bot.polling(none_stop=True)
+bot.bot.infinity_polling(timeout=10, long_polling_timeout=5)

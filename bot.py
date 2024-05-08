@@ -6,8 +6,10 @@ from telebot.handler_backends import StatesGroup, State
 from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, add_user_word, \
     add_new_word
 
-from settings import TG_TOKEN  # токен бота
 from translate_api import translate
+
+
+TG_TOKEN = "<KEY>" # Your token
 
 bot = telebot.TeleBot(TG_TOKEN, state_storage=telebot.storage.StateMemoryStorage())  # создание бота
 
