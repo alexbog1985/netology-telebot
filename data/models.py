@@ -25,7 +25,7 @@ class User(Base):
 
 
 class Word(Base):
-    __tablename__ = 'eng_word'
+    __tablename__ = 'word'
 
     id = Column(Integer, primary_key=True)
     eng = Column(String)
