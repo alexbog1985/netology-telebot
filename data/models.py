@@ -28,8 +28,8 @@ class Word(Base):
     __tablename__ = 'word'
 
     id = Column(Integer, primary_key=True)
-    eng = Column(String)
-    rus = Column(String)
+    eng = Column(String(length=50))
+    rus = Column(String(length=50))
 
     users = relationship('UserWord', backref='words')
 

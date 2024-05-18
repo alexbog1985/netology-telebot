@@ -3,13 +3,15 @@ import random
 from telebot import types, custom_filters
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, add_user_word, \
-    add_new_word
+from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, \
+    add_user_word, add_new_word
 
 from translate_api import translate
 
+from settings import TG_TOKEN
 
-TG_TOKEN = "<KEY>" # Your token
+
+# TG_TOKEN = "<KEY>"  # Your token
 
 bot = telebot.TeleBot(TG_TOKEN, state_storage=telebot.storage.StateMemoryStorage())  # создание бота
 
@@ -42,7 +44,7 @@ def start(message):
     username = message.from_user.username
 
     if get_user(cid) is None:
-        add_user(cid, user_id, f_name, l_name, username, step=0)
+        add_user(cid, f_name, l_name, username, step=0)
         bot.send_message(cid, f'Привет, {f_name} {l_name}! Я помогу тебе выучить английский язык.')
 
     markup = types.ReplyKeyboardMarkup(row_width=2)
@@ -141,7 +143,7 @@ def message_reply(message):
     elif message.text == Command.NEXT:
         learn(message)
     elif message.text == Command.ADD_WORD:
-        bot.send_message(message.chat.id, 'Введите слово для добавления:')
+        bot.send_message(message.chat.id, 'Введите слово на русском языке для добавления:')
         bot.register_next_step_handler(message, add_word)
     elif message.text == Command.DELETE_WORD:
         delete_word(message)
@@ -159,4 +161,3 @@ bot.add_custom_filter(custom_filters.StateFilter(bot))
 if __name__ == '__main__':
     print('Bot started')
     bot.polling(none_stop=True)
-

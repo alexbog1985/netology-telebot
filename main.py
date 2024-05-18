@@ -3,8 +3,7 @@ import db
 
 
 if not db.get_all_words():
-    db.add_rus_words()
-    db.add_eng_words()
+    db.add_default_words()
 
 
 print("Starting bot...")
