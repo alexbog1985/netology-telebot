@@ -3,7 +3,7 @@ import random
 from telebot import types, custom_filters
 from telebot.handler_backends import StatesGroup, State
 
-from db import get_user, add_user, get_random_eng_word, get_user_words, delete_user_word, get_all_words, \
+from db import get_user, add_user, get_user_words, delete_user_word, get_all_words, \
     add_user_word, add_new_word
 
 from translate_api import translate
@@ -40,7 +40,6 @@ def start(message):
     cid = message.chat.id
     f_name = message.from_user.first_name
     l_name = message.from_user.last_name
-    user_id = message.from_user.id
     username = message.from_user.username
 
     if get_user(cid) is None:

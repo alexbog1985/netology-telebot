@@ -79,13 +79,6 @@ def get_user_words(cid):
     return dict_words
 
 
-def get_random_eng_word():
-    words = session.query(Word).order_by(func.random()).limit(3)
-    eng_words = [word.eng for word in words]
-    session.close()
-    return eng_words
-
-
 def delete_user_word(cid, eng_word):
     user_id = session.query(User).filter(User.id == cid).first().id
     word_id = session.query(Word).filter(Word.eng == eng_word).first().id
