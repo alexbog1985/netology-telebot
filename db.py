@@ -116,32 +116,17 @@ def add_new_word(r_word, eng_word):
     session.commit()
 
 
-def add_rus_words():
-    w1 = RusWord(rus_word='через')
-    w2 = RusWord(rus_word='слишком')
-    w3 = RusWord(rus_word='великий')
-    w4 = RusWord(rus_word='после')
-    w5 = RusWord(rus_word='длинный')
-    w6 = RusWord(rus_word='слышать')
-    w7 = RusWord(rus_word='поворачивать')
-    w8 = RusWord(rus_word='чувствовать')
-    w9 = RusWord(rus_word='голова')
-    w10 = RusWord(rus_word='люди')
-    session.add_all([w1, w2, w3, w4, w5, w6, w7, w8, w9, w10])
-    session.commit()
-
-
-def add_eng_words():
-    w1 = EngWord(eng_word='through', rus_word_id=1)
-    w2 = EngWord(eng_word='too', rus_word_id=2)
-    w3 = EngWord(eng_word='great', rus_word_id=3)
-    w4 = EngWord(eng_word='after', rus_word_id=4)
-    w5 = EngWord(eng_word='long', rus_word_id=5)
-    w6 = EngWord(eng_word='hear', rus_word_id=6)
-    w7 = EngWord(eng_word='turn', rus_word_id=7)
-    w8 = EngWord(eng_word='feel', rus_word_id=8)
-    w9 = EngWord(eng_word='head', rus_word_id=9)
-    w10 = EngWord(eng_word='people', rus_word_id=10)
+def add_default_words():
+    w1 = RusWord(rus='через', eng='through'),
+    w2 = RusWord(rus='слишком', eng='too'),
+    w3 = RusWord(rus='великий', eng='great'),
+    w4 = RusWord(rus='после', eng='after'),
+    w5 = RusWord(rus='длинный', eng='long'),
+    w6 = RusWord(rus='слышать', eng='hear'),
+    w7 = RusWord(rus='поворачивать', eng='turn'),
+    w8 = RusWord(rus='чувствовать', eng='feel'),
+    w9 = RusWord(rus='голова', eng='head'),
+    w10 = RusWord(rus='люди', eng='people'),
     session.add_all([w1, w2, w3, w4, w5, w6, w7, w8, w9, w10])
     session.commit()
 
