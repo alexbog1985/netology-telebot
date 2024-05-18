@@ -35,7 +35,7 @@ def add_user(cid, f_name, l_name, username, step):
 
 def get_all_users():
     users = session.query(User).all()
-    user_ids = [user.user_tg_id for user in users]
+    user_ids = [user.id for user in users]
     session.close()
     return user_ids
 
@@ -116,16 +116,16 @@ def add_new_word(r_word, eng_word):
 
 
 def add_default_words():
-    w1 = RusWord(rus='через', eng='through'),
-    w2 = RusWord(rus='слишком', eng='too'),
-    w3 = RusWord(rus='великий', eng='great'),
-    w4 = RusWord(rus='после', eng='after'),
-    w5 = RusWord(rus='длинный', eng='long'),
-    w6 = RusWord(rus='слышать', eng='hear'),
-    w7 = RusWord(rus='поворачивать', eng='turn'),
-    w8 = RusWord(rus='чувствовать', eng='feel'),
-    w9 = RusWord(rus='голова', eng='head'),
-    w10 = RusWord(rus='люди', eng='people'),
+    w1 = Word(rus='через', eng='through'),
+    w2 = Word(rus='слишком', eng='too'),
+    w3 = Word(rus='великий', eng='great'),
+    w4 = Word(rus='после', eng='after'),
+    w5 = Word(rus='длинный', eng='long'),
+    w6 = Word(rus='слышать', eng='hear'),
+    w7 = Word(rus='поворачивать', eng='turn'),
+    w8 = Word(rus='чувствовать', eng='feel'),
+    w9 = Word(rus='голова', eng='head'),
+    w10 = Word(rus='люди', eng='people'),
     session.add_all([w1, w2, w3, w4, w5, w6, w7, w8, w9, w10])
     session.commit()
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     # print(get_all_words())
     # print(dir(delete_user_word(226351277)))
     # print(delete_user_word(226351277))
-    print(get_user_words(226351277))
+    # print(get_user_words(226351277))
     # add_rus_words()
     # add_eng_words()
 
