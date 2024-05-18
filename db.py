@@ -61,28 +61,29 @@ def get_user(cid):
 
 def get_user_words(cid):
     try:
-        user = session.query(User).filter(User.id == cid).first()
-        eng_words = [word.words.eng for word in user.words]
-        rus_words = [word.words.rus for word in user.words]
-        eng_rus_words = list(zip(eng_words, rus_words))
-
-        two_word = random.choice(eng_rus_words)
-        session.close()
+        user_words = (
+            session.query(Word.rus, Word.eng)
+            .join(UserWord, isouter=True)
+            .filter(UserWord.user_id.in_([cid, None]))
+            .order_by(func.random())
+            .limit(4)
+            .all()
+        )
     except Exception as e:
         print(e)
         session.close()
         return None
-    return {'eng_word': two_word[0], 'rus_word': two_word[1]}
+    dict_words = {}
+    for word_ in user_words:
+        dict_words[word_[0]] = word_[1]
+    return dict_words
 
 
 def get_random_eng_word():
-    q = (session.query(
-        Word
-    ).select_from(Word).
-       group_by(func.random()).
-       first())
+    words = session.query(Word).order_by(func.random()).limit(3)
+    eng_words = [word.eng for word in words]
     session.close()
-    return q.eng
+    return eng_words
 
 
 def delete_user_word(cid, eng_word):
@@ -128,9 +129,10 @@ def add_default_words():
 if __name__ == '__main__':
     print(engine)
     create_tables(engine)
+    print(get_user_words(226351277))
     # add_default_words()
     # add_new_word('бежать', 'run')
-    add_user_word(226351277, 'run')
+    # add_user_word(226351277, 'run')
     # print(get_all_words())
     # print(dir(delete_user_word(226351277)))
     # print(delete_user_word(226351277))

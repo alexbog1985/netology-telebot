@@ -60,14 +60,10 @@ def learn(message):
 
     words = get_user_words(message.from_user.id)
     if words:
-        rus_word = words['rus_word']  # Русское слово
-        target_eng_word = words['eng_word']  # Правильное английское слово
+        rus_word = list(words.keys())[0]  # Русское слово
+        target_eng_word = words[rus_word]  # Правильное английское слово
         target_eng_word_button = types.KeyboardButton(target_eng_word)  # создание кнопки
-        other_eng_words = []  # другие, неправильные английские слова
-        while len(other_eng_words) < 3:
-            random_eng_word = get_random_eng_word()
-            if random_eng_word not in other_eng_words and random_eng_word != target_eng_word:
-                other_eng_words.append(random_eng_word)
+        other_eng_words = [value for key, value in words.items() if key != rus_word]   # список других слов
 
         other_eng_word_buttons = [types.KeyboardButton(word) for word in other_eng_words]  # создание кнопок
 
