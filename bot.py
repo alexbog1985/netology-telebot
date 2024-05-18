@@ -97,7 +97,8 @@ def delete_word(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
     yes_btn = types.KeyboardButton('Да')
     no_btn = types.KeyboardButton('Нет')
-    markup.add(yes_btn, no_btn)
+    other_btn = types.KeyboardButton('Другое слово')
+    markup.add(yes_btn, no_btn, other_btn)
 
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         eng_word = data['target_eng_word']
@@ -110,6 +111,18 @@ def delete_word(message):
     elif message.text == 'Нет':
         bot.send_message(message.chat.id, 'Окей, не удалял.')
         learn(message)
+    elif message.text == 'Другое слово':
+        bot.send_message(message.chat.id, 'Введите слово на русском языке.')
+        bot.register_next_step_handler(message, delete_input_word)
+
+
+@bot.message_handler(state=MyStates.delete_word, content_types=['text'])
+def delete_input_word(message):
+    rus_word = message.text.lower()
+    eng_word = translate(rus_word)
+    delete_user_word(message.from_user.id, eng_word)
+    bot.send_message(message.chat.id, f'Удалил слово "{rus_word}" перевод: "{eng_word}"')
+    learn(message)
 
 
 @bot.message_handler(state=MyStates.add_word)
