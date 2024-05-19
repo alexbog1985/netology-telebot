@@ -8,9 +8,7 @@ from db import get_user, add_user, get_user_words, delete_user_word, get_all_wor
 
 from translate_api import translate
 
-from settings import TG_TOKEN
-
-# TG_TOKEN = "<KEY>"  # Your token
+TG_TOKEN = "<KEY>"  # Your token
 
 bot = telebot.TeleBot(TG_TOKEN, state_storage=telebot.storage.StateMemoryStorage())  # создание бота
 
