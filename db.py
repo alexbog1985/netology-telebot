@@ -42,15 +42,22 @@ def get_all_users():
 
 def get_all_words():
     try:
-        all_words = session.query(Word).all()
-        eng_words_list = [word.eng for word in all_words]
-        rus_words_list = [word.rus for word in all_words]
-        words = dict(zip(rus_words_list, eng_words_list))
+        words = dict(session.query(Word.rus, Word.eng).all())
         session.close()
         return words
     except Exception as e:
         print(f'Не получилось получить слова из базы данных. Ошибка: {e}')
         return None
+
+
+def get_all_user_words(cid):
+    user_words = (
+        session.query(Word.rus, Word.eng).
+        join(UserWord, isouter=True).
+        filter(UserWord.user_id == cid).
+        all()
+    )
+    return dict(user_words)
 
 
 def get_user(cid):
@@ -122,7 +129,8 @@ def add_default_words():
 if __name__ == '__main__':
     print(engine)
     create_tables(engine)
-    print(get_user_words(226351277))
+    # print(get_user_words(226351277))
+    # print(get_all_user_words(226351277))
     # add_default_words()
     # add_new_word('бежать', 'run')
     # add_user_word(226351277, 'run')

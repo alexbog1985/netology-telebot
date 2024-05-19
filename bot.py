@@ -4,12 +4,13 @@ from telebot import types, custom_filters
 from telebot.handler_backends import StatesGroup, State
 
 from db import get_user, add_user, get_user_words, delete_user_word, get_all_words, \
-    add_user_word, add_new_word
+    add_user_word, add_new_word, get_all_user_words
 
 from translate_api import translate
 
+from settings import TG_TOKEN
 
-TG_TOKEN = "<KEY>"  # Your token
+# TG_TOKEN = "<KEY>"  # Your token
 
 bot = telebot.TeleBot(TG_TOKEN, state_storage=telebot.storage.StateMemoryStorage())  # создание бота
 
@@ -84,7 +85,8 @@ def learn(message):
     else:
         bot.send_message(message.chat.id, 'У вас нет слов для изучения. '
                                           'Добавьте новое слово. '
-                                          'Введите слово на русском языке.')
+                                          'Введите слово на русском языке.',
+                         reply_markup=types.ReplyKeyboardRemove())
         bot.register_next_step_handler(message, add_word)
 
 
@@ -110,17 +112,23 @@ def delete_word(message):
         bot.send_message(message.chat.id, 'Окей, не удалял.')
         learn(message)
     elif message.text == 'Другое слово':
-        bot.send_message(message.chat.id, 'Введите слово на русском языке.')
+        bot.send_message(message.chat.id,
+                         'Введите слово на русском языке.',
+                         reply_markup=types.ReplyKeyboardRemove())
         bot.register_next_step_handler(message, delete_input_word)
 
 
 @bot.message_handler(state=MyStates.delete_word, content_types=['text'])
 def delete_input_word(message):
     rus_word = message.text.lower()
-    eng_word = translate(rus_word)
-    delete_user_word(message.from_user.id, eng_word)
-    bot.send_message(message.chat.id, f'Удалил слово "{rus_word}" перевод: "{eng_word}"')
-    learn(message)
+    if rus_word in get_all_user_words(message.from_user.id):
+        eng_word = translate(rus_word)
+        delete_user_word(message.from_user.id, eng_word)
+        bot.send_message(message.chat.id, f'Удалил слово "{rus_word}" перевод: "{eng_word}"')
+        learn(message)
+    else:
+        bot.send_message(message.chat.id, 'Такого слова нет.')
+        learn(message)
 
 
 @bot.message_handler(state=MyStates.add_word)
@@ -149,7 +157,8 @@ def message_reply(message):
     elif message.text == Command.NEXT:
         learn(message)
     elif message.text == Command.ADD_WORD:
-        bot.send_message(message.chat.id, 'Введите слово на русском языке для добавления:')
+        bot.send_message(message.chat.id, 'Введите слово на русском языке для добавления:',
+                         reply_markup=types.ReplyKeyboardRemove())
         bot.register_next_step_handler(message, add_word)
     elif message.text == Command.DELETE_WORD:
         delete_word(message)
